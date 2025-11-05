@@ -42,7 +42,7 @@ export class PartyService {
     }
 
     // Fetch creature details
-    let creatures = [];
+    let creatures: any[] = [];
     if (party.creature_ids && party.creature_ids.length > 0) {
       creatures = await this.creatureRepo
         .createQueryBuilder('uc')

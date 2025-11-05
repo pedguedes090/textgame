@@ -137,18 +137,15 @@ export class HistoryController {
 
     // Add perspective info (win/loss)
     const matchesWithPerspective = matches.map(match => {
-      const isPlayer1 = match.player1_id === req.user.id;
-      const won = match.winner_id === req.user.id;
+      const isPlayerA = match.player_a_id === req.user.id;
+      const won = (match.result === 'WIN_A' && isPlayerA) || (match.result === 'WIN_B' && !isPlayerA);
       
       return {
         ...match,
-        your_rating_before: isPlayer1 ? match.player1_rating_before : match.player2_rating_before,
-        your_rating_after: isPlayer1 ? match.player1_rating_after : match.player2_rating_after,
-        opponent_id: isPlayer1 ? match.player2_id : match.player1_id,
+        your_rating_change: isPlayerA ? match.rating_delta_a : match.rating_delta_b,
+        opponent_id: isPlayerA ? match.player_b_id : match.player_a_id,
         result: won ? 'WIN' : 'LOSS',
-        rating_change: isPlayer1 
-          ? match.player1_rating_after - match.player1_rating_before 
-          : match.player2_rating_after - match.player2_rating_before,
+        rating_change: isPlayerA ? match.rating_delta_a : match.rating_delta_b,
       };
     });
 
@@ -195,19 +192,31 @@ export class HistoryController {
       where: { user_id: req.user.id },
     });
 
-    const victories = await this.battleRepo.count({
-      where: { user_id: req.user.id, victory: true },
+    // Count victories by parsing result_json
+    const allBattles = await this.battleRepo.find({
+      where: { user_id: req.user.id },
+      select: ['result_json'],
     });
+    const victories = allBattles.filter(battle => {
+      if (!battle.result_json) return false;
+      try {
+        const result = JSON.parse(battle.result_json);
+        return result.victory === true;
+      } catch {
+        return false;
+      }
+    }).length;
 
     // PVP stats
     const totalPvp = await this.pvpRepo
       .createQueryBuilder('match')
-      .where('match.player1_id = :userId OR match.player2_id = :userId', { userId: req.user.id })
+      .where('match.player_a_id = :userId OR match.player_b_id = :userId', { userId: req.user.id })
       .getCount();
 
     const pvpWins = await this.pvpRepo
       .createQueryBuilder('match')
-      .where('match.winner_id = :userId', { userId: req.user.id })
+      .where('(match.player_a_id = :userId AND match.result = :winA) OR (match.player_b_id = :userId AND match.result = :winB)', 
+        { userId: req.user.id, winA: 'WIN_A', winB: 'WIN_B' })
       .getCount();
 
     return {

@@ -46,7 +46,7 @@ export class UserController {
   async getStamina(@Req() req: any) {
     const user = await this.userRepo.findOne({ 
       where: { id: req.user.id },
-      select: ['id', 'stamina', 'last_stamina_regen']
+      select: ['id', 'stamina', 'stamina_updated_at']
     });
 
     if (!user) {
@@ -57,7 +57,7 @@ export class UserController {
     const regenInterval = gameConfig.stamina.regenInterval;
     const regenAmount = gameConfig.stamina.regenAmount;
 
-    const lastRegen = user.last_stamina_regen || new Date();
+    const lastRegen = new Date(Number(user.stamina_updated_at));
     const now = new Date();
     const nextRegen = new Date(lastRegen.getTime() + regenInterval);
     const timeToNextRegenSeconds = Math.max(0, Math.floor((nextRegen.getTime() - now.getTime()) / 1000));

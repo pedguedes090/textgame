@@ -20,7 +20,7 @@ export default function PvpPage() {
       if (response.data.status === 'matched') {
         toast.success('Match found!')
       } else {
-        toast.info('Queued for matchmaking')
+        toast('Queued for matchmaking')
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Queue failed')

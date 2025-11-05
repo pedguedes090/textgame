@@ -46,11 +46,11 @@ export class BattleService {
    * Calculate element advantage bonus
    */
   getElementBonus(attackerElement: string, defenderElement: string): number {
-    const advantage = gameConfig.elementAdvantage[attackerElement];
+    const advantage = gameConfig.elementAdvantage[attackerElement as keyof typeof gameConfig.elementAdvantage];
     if (advantage === defenderElement) return gameConfig.elementBonus; // +10%
     
     // Check reverse (defender có lợi thế)
-    const defenderAdvantage = gameConfig.elementAdvantage[defenderElement];
+    const defenderAdvantage = gameConfig.elementAdvantage[defenderElement as keyof typeof gameConfig.elementAdvantage];
     if (defenderAdvantage === attackerElement) return -gameConfig.elementBonus; // -10%
 
     return 0; // Neutral

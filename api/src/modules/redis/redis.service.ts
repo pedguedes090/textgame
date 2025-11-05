@@ -33,6 +33,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client;
   }
 
+  async ping(): Promise<string> {
+    return this.client.ping();
+  }
+
   // Rate limiting with Lua script
   async checkRateLimit(key: string, limit: number, ttl: number): Promise<boolean> {
     const script = `

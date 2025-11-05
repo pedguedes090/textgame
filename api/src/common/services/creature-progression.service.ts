@@ -121,7 +121,7 @@ export class CreatureProgressionService {
           let value = affix.value || 0;
 
           // Enhancement bonus: +10% per enhancement level
-          const enhanceMultiplier = 1 + (invItem.enhance_lv || 0) * 0.1;
+          const enhanceMultiplier = 1 + (invItem.enhance_level || 0) * 0.1;
           value = Math.floor(value * enhanceMultiplier);
 
           if (stat === 'hp') bonus.hp += value;
@@ -255,39 +255,9 @@ export class CreatureProgressionService {
     }
 
     // Check if species has evolution data
-    const evolutionData = creature.species.evolution_data 
-      ? JSON.parse(creature.species.evolution_data) 
-      : null;
-
-    if (!evolutionData || !evolutionData.evolves_to) {
-      return { canEvolve: false };
-    }
-
-    // Check level requirement
-    const requiredLevel = evolutionData.required_level || 30;
-    if (creature.level < requiredLevel) {
-      return {
-        canEvolve: false,
-        requirements: {
-          level: requiredLevel,
-          current_level: creature.level,
-        },
-      };
-    }
-
-    // Get next evolution species
-    const nextSpecies = await this.speciesRepo.findOne({
-      where: { id: evolutionData.evolves_to },
-    });
-
-    return {
-      canEvolve: true,
-      nextEvolution: nextSpecies || undefined,
-      requirements: {
-        level: requiredLevel,
-        item: evolutionData.required_item,
-      },
-    };
+    // TODO: Add evolution_data field to CreatureSpecies entity
+    // Evolution system is not yet implemented
+    return { canEvolve: false };
   }
 
   /**

@@ -5,7 +5,7 @@ import { DailyLoginReward } from 'src/entities/daily-login-reward.entity';
 import { User } from 'src/entities/user.entity';
 import { UserInventory } from 'src/entities/user-inventory.entity';
 
-interface DailyReward {
+export interface DailyReward {
   day: number;
   gold: number;
   gems: number;
@@ -208,7 +208,7 @@ export class DailyRewardsService {
         user_id: userId,
         item_id: itemId,
         quantity,
-        enhance_lv: 0,
+        enhance_level: 0,
         bound: false,
       });
       await this.inventoryRepo.save(newItem);

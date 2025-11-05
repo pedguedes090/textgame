@@ -202,7 +202,7 @@ export class ShopService {
 
       // Calculate sell price (50% of base value + enhancement bonus)
       const baseValue = item.base_value || 100;
-      const enhancementBonus = Math.floor(baseValue * 0.1 * (invItem.enhance_lv || 0));
+      const enhancementBonus = Math.floor(baseValue * 0.1 * (invItem.enhance_level || 0));
       const sellPrice = Math.floor((baseValue + enhancementBonus) * 0.5);
       const totalGold = sellPrice * quantity;
 

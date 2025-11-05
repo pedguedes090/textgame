@@ -48,7 +48,7 @@ export class ItemsService {
           throw new NotFoundException('Item not found in inventory');
         }
 
-        const currentLevel = invItem.enhance_lv || 0;
+        const currentLevel = invItem.enhance_level || 0;
         const maxLevel = gameConfig.enhance.maxLevel;
 
         if (currentLevel >= maxLevel) {
@@ -78,7 +78,7 @@ export class ItemsService {
         let newLevel = currentLevel;
         if (success) {
           newLevel = currentLevel + 1;
-          invItem.enhance_lv = newLevel;
+          invItem.enhance_level = newLevel;
           await manager.save(UserInventory, invItem);
         }
 
@@ -132,7 +132,7 @@ export class ItemsService {
         item_id: itemId,
         quantity,
         bound,
-        enhance_lv: 0,
+        enhance_level: 0,
       });
 
       return manager.save(UserInventory, invItem);
@@ -240,7 +240,7 @@ export class ItemsService {
       }
 
       // Parse current gear
-      let gearSlots = {};
+      let gearSlots: Record<string, number> = {};
       try {
         gearSlots = creature.gear_slots ? JSON.parse(creature.gear_slots) : {};
       } catch (e) {
@@ -248,7 +248,7 @@ export class ItemsService {
       }
 
       // Determine slot
-      const slotMap = {
+      const slotMap: Record<string, string> = {
         WEAPON: 'weapon_id',
         ARMOR: 'armor_id',
         CHARM: 'charm_id',
@@ -311,7 +311,7 @@ export class ItemsService {
       }
 
       // Parse gear slots
-      let gearSlots = {};
+      let gearSlots: Record<string, number> = {};
       try {
         gearSlots = creature.gear_slots ? JSON.parse(creature.gear_slots) : {};
       } catch (e) {
@@ -393,7 +393,7 @@ export class ItemsService {
           equippedItems[slot] = {
             inventory_item_id: invItem.id,
             item: invItem.item,
-            enhance_level: invItem.enhance_lv,
+            enhance_level: invItem.enhance_level,
           };
         }
       }
