@@ -65,9 +65,11 @@ export class AddPartyTable1699100000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('parties');
-    const foreignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('user_id') !== -1);
-    if (foreignKey) {
-      await queryRunner.dropForeignKey('parties', foreignKey);
+    if (table) {
+      const foreignKey = table.foreignKeys.find((fk) => fk.columnNames.indexOf('user_id') !== -1);
+      if (foreignKey) {
+        await queryRunner.dropForeignKey('parties', foreignKey);
+      }
     }
     await queryRunner.dropTable('parties');
   }

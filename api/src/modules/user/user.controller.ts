@@ -1,4 +1,14 @@
-import { Controller, Get, Put, Post, Body, UseGuards, Req, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RateLimitGuard, RateLimit } from 'src/common/guards/rate-limit.guard';
@@ -23,9 +33,9 @@ export class UserController {
 
   @Get('stamina')
   @RateLimit({ ttl: 60, limit: 60 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem stamina hiện tại',
-    description: 'Lấy thông tin stamina hiện tại và thời gian regen tiếp theo'
+    description: 'Lấy thông tin stamina hiện tại và thời gian regen tiếp theo',
   })
   @ApiResponse({
     status: 200,
@@ -39,14 +49,14 @@ export class UserController {
         regen_interval_minutes: 5,
         last_regen: '2025-11-04T12:00:00.000Z',
         next_regen: '2025-11-04T12:05:00.000Z',
-        time_to_next_regen_seconds: 180
-      }
-    }
+        time_to_next_regen_seconds: 180,
+      },
+    },
   })
   async getStamina(@Req() req: any) {
-    const user = await this.userRepo.findOne({ 
+    const user = await this.userRepo.findOne({
       where: { id: req.user.id },
-      select: ['id', 'stamina', 'last_stamina_regen']
+      select: ['id', 'stamina', 'stamina_updated_at'],
     });
 
     if (!user) {
@@ -57,10 +67,13 @@ export class UserController {
     const regenInterval = gameConfig.stamina.regenInterval;
     const regenAmount = gameConfig.stamina.regenAmount;
 
-    const lastRegen = user.last_stamina_regen || new Date();
+    const lastRegen = new Date(Number(user.stamina_updated_at));
     const now = new Date();
     const nextRegen = new Date(lastRegen.getTime() + regenInterval);
-    const timeToNextRegenSeconds = Math.max(0, Math.floor((nextRegen.getTime() - now.getTime()) / 1000));
+    const timeToNextRegenSeconds = Math.max(
+      0,
+      Math.floor((nextRegen.getTime() - now.getTime()) / 1000),
+    );
 
     return {
       current_stamina: user.stamina,
@@ -76,9 +89,9 @@ export class UserController {
 
   @Get('stats')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem stats tổng quan của user',
-    description: 'Level, XP, gold, gems, stamina, số creatures, v.v.'
+    description: 'Level, XP, gold, gems, stamina, số creatures, v.v.',
   })
   @ApiResponse({
     status: 200,
@@ -94,13 +107,13 @@ export class UserController {
         gems: 1500,
         stamina: 75,
         total_creatures: 42,
-        total_battles: 150
-      }
-    }
+        total_battles: 150,
+      },
+    },
   })
   async getUserStats(@Req() req: any) {
-    const user = await this.userRepo.findOne({ 
-      where: { id: req.user.id }
+    const user = await this.userRepo.findOne({
+      where: { id: req.user.id },
     });
 
     if (!user) {
@@ -124,9 +137,9 @@ export class UserController {
 
   @Put('profile')
   @RateLimit({ ttl: 60, limit: 10 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Cập nhật profile',
-    description: 'Update bio, avatar'
+    description: 'Update bio, avatar',
   })
   @ApiResponse({
     status: 200,
@@ -136,10 +149,10 @@ export class UserController {
         message: 'Profile updated successfully',
         profile: {
           bio: 'My cool bio',
-          avatar: 'avatar_url.png'
-        }
-      }
-    }
+          avatar: 'avatar_url.png',
+        },
+      },
+    },
   })
   async updateProfile(@Req() req: any, @Body() dto: UpdateProfileDto) {
     const user = await this.userRepo.findOne({ where: { id: req.user.id } });
@@ -174,15 +187,15 @@ export class UserController {
 
   @Post('change-password')
   @RateLimit({ ttl: 60, limit: 5 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Đổi mật khẩu',
-    description: 'Change password with old password verification'
+    description: 'Change password with old password verification',
   })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
   async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
-    const user = await this.userRepo.findOne({ 
+    const user = await this.userRepo.findOne({
       where: { id: req.user.id },
-      select: ['id', 'pass_hash']
+      select: ['id', 'pass_hash'],
     });
 
     if (!user) {
@@ -207,9 +220,9 @@ export class UserController {
 
   @Get('profile')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem profile đầy đủ',
-    description: 'Full user profile with bio, avatar, stats'
+    description: 'Full user profile with bio, avatar, stats',
   })
   @ApiResponse({
     status: 200,
@@ -225,9 +238,9 @@ export class UserController {
         stamina: 75,
         bio: 'My cool bio',
         avatar: 'avatar_url.png',
-        created_at: '2025-01-01T00:00:00.000Z'
-      }
-    }
+        created_at: '2025-01-01T00:00:00.000Z',
+      },
+    },
   })
   async getFullProfile(@Req() req: any) {
     const user = await this.userRepo.findOne({ where: { id: req.user.id } });
@@ -258,9 +271,9 @@ export class UserController {
 
   @Get('daily-reward/check')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Kiểm tra daily login reward',
-    description: 'Check nếu có thể claim daily reward và xem streak hiện tại'
+    description: 'Check nếu có thể claim daily reward và xem streak hiện tại',
   })
   @ApiResponse({
     status: 200,
@@ -274,16 +287,16 @@ export class UserController {
           gold: 1000,
           gems: 15,
           items: [{ item_id: 1, quantity: 3 }],
-          description: 'Day 3 bonus + items'
+          description: 'Day 3 bonus + items',
         },
-        rewardSchedule: []
-      }
-    }
+        rewardSchedule: [],
+      },
+    },
   })
   async checkDailyReward(@Req() req: any) {
     const check = await this.dailyRewardsService.checkDailyReward(req.user.id);
     const streakInfo = await this.dailyRewardsService.getStreakInfo(req.user.id);
-    
+
     return {
       ...check,
       rewardSchedule: streakInfo.rewardSchedule,
@@ -292,9 +305,9 @@ export class UserController {
 
   @Post('daily-reward/claim')
   @RateLimit({ ttl: 60, limit: 10 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Claim daily login reward',
-    description: 'Nhận reward hàng ngày khi đăng nhập'
+    description: 'Nhận reward hàng ngày khi đăng nhập',
   })
   @ApiResponse({
     status: 200,
@@ -307,16 +320,16 @@ export class UserController {
           gold: 1000,
           gems: 15,
           items: [{ item_id: 1, quantity: 3 }],
-          description: 'Day 3 bonus + items'
+          description: 'Day 3 bonus + items',
         },
         streakDay: 3,
         newBalance: {
           gold: 51000,
-          gems: 1515
+          gems: 1515,
         },
-        message: 'Day 3 reward claimed! +1000 gold, +15 gems + 1 item(s)'
-      }
-    }
+        message: 'Day 3 reward claimed! +1000 gold, +15 gems + 1 item(s)',
+      },
+    },
   })
   async claimDailyReward(@Req() req: any) {
     return this.dailyRewardsService.claimDailyReward(req.user.id);
@@ -324,9 +337,9 @@ export class UserController {
 
   @Get('daily-reward/streak')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem login streak info',
-    description: 'Xem thông tin streak và lịch sử login'
+    description: 'Xem thông tin streak và lịch sử login',
   })
   @ApiResponse({
     status: 200,
@@ -340,11 +353,11 @@ export class UserController {
           day: 4,
           gold: 1500,
           gems: 20,
-          description: 'Day 4 bonus'
+          description: 'Day 4 bonus',
         },
-        rewardSchedule: []
-      }
-    }
+        rewardSchedule: [],
+      },
+    },
   })
   async getStreakInfo(@Req() req: any) {
     return this.dailyRewardsService.getStreakInfo(req.user.id);
@@ -352,9 +365,9 @@ export class UserController {
 
   @Get('daily-reward/history')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem lịch sử login rewards',
-    description: 'Lịch sử 30 ngày gần nhất'
+    description: 'Lịch sử 30 ngày gần nhất',
   })
   @ApiResponse({
     status: 200,

@@ -7,10 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserCreature, CreatureSpecies, User]),
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([UserCreature, CreatureSpecies, User]), CommonModule],
   controllers: [HuntController],
 })
 export class HuntModule {}

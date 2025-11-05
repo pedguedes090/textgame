@@ -18,11 +18,7 @@ export class PvpService {
   /**
    * Calculate Elo rating change
    */
-  calculateElo(
-    ratingA: number,
-    ratingB: number,
-    result: 'WIN_A' | 'WIN_B' | 'DRAW',
-  ): EloUpdate {
+  calculateElo(ratingA: number, ratingB: number, result: 'WIN_A' | 'WIN_B' | 'DRAW'): EloUpdate {
     const expectedA = this.expectedScore(ratingA, ratingB);
     const expectedB = 1 - expectedA;
 
@@ -49,7 +45,7 @@ export class PvpService {
   /**
    * Mock matchmaking: tìm đối thủ gần rating (trong production dùng queue Redis)
    */
-  async findOpponent(userId: number, rating: number): Promise<number | null> {
+  async findOpponent(userId: number, _rating: number): Promise<number | null> {
     // TODO: Implement với Redis sorted set để queue
     // Tạm thời return mock opponent ID
     return userId + 1000; // Mock

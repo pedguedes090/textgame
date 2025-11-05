@@ -22,7 +22,7 @@ export default function HuntPage() {
       if (response.data.success) {
         toast.success(`Caught ${response.data.creature_caught.species_name}!`)
       } else {
-        toast.info('No creature encountered')
+        toast('No creature encountered')
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Hunt failed')

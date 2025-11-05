@@ -21,9 +21,9 @@ export class HistoryController {
 
   @Get('battles')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lịch sử battles (dungeons)',
-    description: 'Xem lịch sử các trận battle trong dungeons với pagination'
+    description: 'Xem lịch sử các trận battle trong dungeons với pagination',
   })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 20 })
@@ -40,17 +40,17 @@ export class HistoryController {
             victory: true,
             turns: 8,
             loot_json: '{"gold":500,"items":[]}',
-            created_at: '2025-11-04T10:30:00.000Z'
-          }
+            created_at: '2025-11-04T10:30:00.000Z',
+          },
         ],
         pagination: {
           page: 1,
           limit: 20,
           total: 150,
-          totalPages: 8
-        }
-      }
-    }
+          totalPages: 8,
+        },
+      },
+    },
   })
   async getBattleHistory(
     @Req() req: any,
@@ -79,9 +79,9 @@ export class HistoryController {
 
   @Get('pvp')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lịch sử PVP matches',
-    description: 'Xem lịch sử các trận PVP với rating changes'
+    description: 'Xem lịch sử các trận PVP với rating changes',
   })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 20 })
@@ -102,17 +102,17 @@ export class HistoryController {
             player2_rating_before: 1520,
             player2_rating_after: 1504,
             season: 'S1',
-            created_at: '2025-11-04T11:00:00.000Z'
-          }
+            created_at: '2025-11-04T11:00:00.000Z',
+          },
         ],
         pagination: {
           page: 1,
           limit: 20,
           total: 85,
-          totalPages: 5
-        }
-      }
-    }
+          totalPages: 5,
+        },
+      },
+    },
   })
   async getPvpHistory(
     @Req() req: any,
@@ -136,19 +136,17 @@ export class HistoryController {
     const [matches, total] = await queryBuilder.getManyAndCount();
 
     // Add perspective info (win/loss)
-    const matchesWithPerspective = matches.map(match => {
-      const isPlayer1 = match.player1_id === req.user.id;
-      const won = match.winner_id === req.user.id;
-      
+    const matchesWithPerspective = matches.map((match) => {
+      const isPlayerA = match.player_a_id === req.user.id;
+      const won =
+        (match.result === 'WIN_A' && isPlayerA) || (match.result === 'WIN_B' && !isPlayerA);
+
       return {
         ...match,
-        your_rating_before: isPlayer1 ? match.player1_rating_before : match.player2_rating_before,
-        your_rating_after: isPlayer1 ? match.player1_rating_after : match.player2_rating_after,
-        opponent_id: isPlayer1 ? match.player2_id : match.player1_id,
+        your_rating_change: isPlayerA ? match.rating_delta_a : match.rating_delta_b,
+        opponent_id: isPlayerA ? match.player_b_id : match.player_a_id,
         result: won ? 'WIN' : 'LOSS',
-        rating_change: isPlayer1 
-          ? match.player1_rating_after - match.player1_rating_before 
-          : match.player2_rating_after - match.player2_rating_before,
+        rating_change: isPlayerA ? match.rating_delta_a : match.rating_delta_b,
       };
     });
 
@@ -165,9 +163,9 @@ export class HistoryController {
 
   @Get('stats')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Thống kê battle tổng quan',
-    description: 'Win rate, total battles, dungeons completed, PVP record'
+    description: 'Win rate, total battles, dungeons completed, PVP record',
   })
   @ApiResponse({
     status: 200,
@@ -177,17 +175,17 @@ export class HistoryController {
         dungeon_stats: {
           total_battles: 150,
           victories: 140,
-          win_rate: 0.933
+          win_rate: 0.933,
         },
         pvp_stats: {
           total_matches: 85,
           wins: 45,
           losses: 40,
           win_rate: 0.529,
-          current_rating: 1580
-        }
-      }
-    }
+          current_rating: 1580,
+        },
+      },
+    },
   })
   async getBattleStats(@Req() req: any) {
     // Dungeon stats
@@ -195,19 +193,33 @@ export class HistoryController {
       where: { user_id: req.user.id },
     });
 
-    const victories = await this.battleRepo.count({
-      where: { user_id: req.user.id, victory: true },
+    // Count victories by parsing result_json
+    const allBattles = await this.battleRepo.find({
+      where: { user_id: req.user.id },
+      select: ['result_json'],
     });
+    const victories = allBattles.filter((battle) => {
+      if (!battle.result_json) return false;
+      try {
+        const result = JSON.parse(battle.result_json);
+        return result.victory === true;
+      } catch {
+        return false;
+      }
+    }).length;
 
     // PVP stats
     const totalPvp = await this.pvpRepo
       .createQueryBuilder('match')
-      .where('match.player1_id = :userId OR match.player2_id = :userId', { userId: req.user.id })
+      .where('match.player_a_id = :userId OR match.player_b_id = :userId', { userId: req.user.id })
       .getCount();
 
     const pvpWins = await this.pvpRepo
       .createQueryBuilder('match')
-      .where('match.winner_id = :userId', { userId: req.user.id })
+      .where(
+        '(match.player_a_id = :userId AND match.result = :winA) OR (match.player_b_id = :userId AND match.result = :winB)',
+        { userId: req.user.id, winA: 'WIN_A', winB: 'WIN_B' },
+      )
       .getCount();
 
     return {

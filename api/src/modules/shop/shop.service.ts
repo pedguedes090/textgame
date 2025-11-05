@@ -44,10 +44,11 @@ export class ShopService {
     const itemsWithDetails = await Promise.all(
       shopItems.map(async (shopItem) => {
         const item = await this.itemRepo.findOne({ where: { id: shopItem.item_id } });
-        
-        const finalPrice = shopItem.discount_percent > 0
-          ? Math.floor(shopItem.price_gold * (1 - shopItem.discount_percent / 100))
-          : shopItem.price_gold;
+
+        const finalPrice =
+          shopItem.discount_percent > 0
+            ? Math.floor(shopItem.price_gold * (1 - shopItem.discount_percent / 100))
+            : shopItem.price_gold;
 
         return {
           ...shopItem,
@@ -56,7 +57,7 @@ export class ShopService {
           final_price_gems: shopItem.price_gems,
           is_limited: shopItem.stock !== -1,
         };
-      })
+      }),
     );
 
     return {
@@ -95,29 +96,26 @@ export class ShopService {
       // Check level requirement
       if (user.level < shopItem.min_level) {
         throw new BadRequestException(
-          `Requires level ${shopItem.min_level}. You are level ${user.level}`
+          `Requires level ${shopItem.min_level}. You are level ${user.level}`,
         );
       }
 
       // Calculate total price
-      const finalPriceGold = shopItem.discount_percent > 0
-        ? Math.floor(shopItem.price_gold * (1 - shopItem.discount_percent / 100))
-        : shopItem.price_gold;
-      
+      const finalPriceGold =
+        shopItem.discount_percent > 0
+          ? Math.floor(shopItem.price_gold * (1 - shopItem.discount_percent / 100))
+          : shopItem.price_gold;
+
       const totalGold = finalPriceGold * quantity;
       const totalGems = shopItem.price_gems * quantity;
 
       // Check currency
       if (user.gold < totalGold) {
-        throw new BadRequestException(
-          `Insufficient gold. Need ${totalGold}, have ${user.gold}`
-        );
+        throw new BadRequestException(`Insufficient gold. Need ${totalGold}, have ${user.gold}`);
       }
 
       if (user.gems < totalGems) {
-        throw new BadRequestException(
-          `Insufficient gems. Need ${totalGems}, have ${user.gems}`
-        );
+        throw new BadRequestException(`Insufficient gems. Need ${totalGems}, have ${user.gems}`);
       }
 
       // Deduct currency
@@ -190,7 +188,7 @@ export class ShopService {
 
       if (invItem.quantity < quantity) {
         throw new BadRequestException(
-          `Insufficient quantity. Have ${invItem.quantity}, trying to sell ${quantity}`
+          `Insufficient quantity. Have ${invItem.quantity}, trying to sell ${quantity}`,
         );
       }
 
@@ -202,7 +200,7 @@ export class ShopService {
 
       // Calculate sell price (50% of base value + enhancement bonus)
       const baseValue = item.base_value || 100;
-      const enhancementBonus = Math.floor(baseValue * 0.1 * (invItem.enhance_lv || 0));
+      const enhancementBonus = Math.floor(baseValue * 0.1 * (invItem.enhance_level || 0));
       const sellPrice = Math.floor((baseValue + enhancementBonus) * 0.5);
       const totalGold = sellPrice * quantity;
 
@@ -246,7 +244,7 @@ export class ShopService {
       .getRawMany();
 
     return {
-      categories: categories.map(c => c.category).filter(c => c),
+      categories: categories.map((c) => c.category).filter((c) => c),
     };
   }
 }

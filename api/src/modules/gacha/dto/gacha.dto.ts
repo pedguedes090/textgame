@@ -2,9 +2,9 @@ import { IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class OpenGachaDto {
-  @ApiProperty({ 
-    example: 'standard', 
-    description: 'Banner ID (standard, premium, event)' 
+  @ApiProperty({
+    example: 'standard',
+    description: 'Banner ID (standard, premium, event)',
   })
   @IsString()
   banner_id: string;

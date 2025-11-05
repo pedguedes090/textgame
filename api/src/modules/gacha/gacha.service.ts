@@ -19,10 +19,10 @@ export class GachaService {
 
   async openGacha(userId: number, bannerId: string, clientSeed?: string) {
     const GACHA_COST_GEMS = 100;
-    
+
     // Deduct gems first (throws if insufficient)
     await this.itemsService.deductGems(userId, GACHA_COST_GEMS);
-    
+
     // Get pity
     let pity = await this.pityRepo.findOne({
       where: { user_id: userId, banner_id: bannerId },
@@ -32,8 +32,8 @@ export class GachaService {
       pity = this.pityRepo.create({
         user_id: userId,
         banner_id: bannerId,
-        counter: 0,
-        total_rolls: 0,
+        rolls_since_legendary: 0,
+        pity_bonus: 0,
       });
       await this.pityRepo.save(pity);
     }
@@ -51,15 +51,19 @@ export class GachaService {
     };
 
     // Roll gacha
-    const result = this.lootService.rollGacha(random, pity.counter);
+    const result = this.lootService.rollGacha(random, pity.rolls_since_legendary);
 
     // Update pity
     if (result.hitPity || ['LEGENDARY', 'MYTHIC', 'ANCIENT'].includes(result.rarity)) {
-      pity.counter = 0;
+      pity.rolls_since_legendary = 0;
+      pity.pity_bonus = 0;
     } else {
-      pity.counter++;
+      pity.rolls_since_legendary++;
+      if (pity.rolls_since_legendary > gameConfig.pity.threshold) {
+        pity.pity_bonus =
+          (pity.rolls_since_legendary - gameConfig.pity.threshold) * gameConfig.pity.increment;
+      }
     }
-    pity.total_rolls++;
     await this.pityRepo.save(pity);
 
     // Map rarity to item ID (simplified: assume items 1-7 match rarity order)
@@ -72,8 +76,8 @@ export class GachaService {
       MYTHIC: 6,
       ANCIENT: 7,
     };
-    const itemId = rarityToItemId[result.rarity] || 1;
-    
+    const itemId = rarityToItemId[result.rarity as keyof typeof rarityToItemId] || 1;
+
     // Save rolled item to inventory
     await this.itemsService.addItemToInventory(userId, itemId, 1, false);
 
@@ -83,15 +87,17 @@ export class GachaService {
 
     // Return với odds transparency
     const adjustedOdds = this.lootService.calculatePityOdds(
-      gameConfig.rarityOdds.LEGENDARY + gameConfig.rarityOdds.MYTHIC + gameConfig.rarityOdds.ANCIENT,
-      pity.counter,
+      gameConfig.rarityOdds.LEGENDARY +
+        gameConfig.rarityOdds.MYTHIC +
+        gameConfig.rarityOdds.ANCIENT,
+      pity.rolls_since_legendary,
     );
 
     return {
       rarity: result.rarity,
       item_id: itemId,
       hit_pity: result.hitPity,
-      pity_counter_after: pity.counter,
+      pity_counter_after: pity.rolls_since_legendary,
       odds: {
         base: gameConfig.rarityOdds,
         adjusted_legendary_plus: adjustedOdds,

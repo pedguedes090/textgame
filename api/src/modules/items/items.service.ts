@@ -29,7 +29,7 @@ export class ItemsService {
 
   async enhanceItem(userId: number, inventoryItemId: number) {
     const lockKey = `enhance:${userId}:${inventoryItemId}`;
-    
+
     return this.lockService.withLock(lockKey, 5000, async () => {
       return this.dataSource.transaction(async (manager) => {
         // Get user
@@ -48,7 +48,7 @@ export class ItemsService {
           throw new NotFoundException('Item not found in inventory');
         }
 
-        const currentLevel = invItem.enhance_lv || 0;
+        const currentLevel = invItem.enhance_level || 0;
         const maxLevel = gameConfig.enhance.maxLevel;
 
         if (currentLevel >= maxLevel) {
@@ -57,14 +57,12 @@ export class ItemsService {
 
         // Calculate cost
         const cost = Math.floor(
-          gameConfig.enhance.baseCost * Math.pow(gameConfig.enhance.costMultiplier, currentLevel)
+          gameConfig.enhance.baseCost * Math.pow(gameConfig.enhance.costMultiplier, currentLevel),
         );
 
         // Check gold
         if (user.gold < cost) {
-          throw new BadRequestException(
-            `Insufficient gold. Need ${cost}, have ${user.gold}`
-          );
+          throw new BadRequestException(`Insufficient gold. Need ${cost}, have ${user.gold}`);
         }
 
         // Deduct gold
@@ -78,7 +76,7 @@ export class ItemsService {
         let newLevel = currentLevel;
         if (success) {
           newLevel = currentLevel + 1;
-          invItem.enhance_lv = newLevel;
+          invItem.enhance_level = newLevel;
           await manager.save(UserInventory, invItem);
         }
 
@@ -132,7 +130,7 @@ export class ItemsService {
         item_id: itemId,
         quantity,
         bound,
-        enhance_lv: 0,
+        enhance_level: 0,
       });
 
       return manager.save(UserInventory, invItem);
@@ -142,11 +140,7 @@ export class ItemsService {
   /**
    * Add gold/gems to user
    */
-  async addCurrency(
-    userId: number,
-    gold: number = 0,
-    gems: number = 0,
-  ): Promise<User> {
+  async addCurrency(userId: number, gold: number = 0, gems: number = 0): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.findOne(User, { where: { id: userId } });
       if (!user) {
@@ -171,9 +165,7 @@ export class ItemsService {
       }
 
       if (user.gems < amount) {
-        throw new BadRequestException(
-          `Insufficient gems. Need ${amount}, have ${user.gems}`
-        );
+        throw new BadRequestException(`Insufficient gems. Need ${amount}, have ${user.gems}`);
       }
 
       user.gems -= amount;
@@ -240,7 +232,7 @@ export class ItemsService {
       }
 
       // Parse current gear
-      let gearSlots = {};
+      let gearSlots: Record<string, number> = {};
       try {
         gearSlots = creature.gear_slots ? JSON.parse(creature.gear_slots) : {};
       } catch (e) {
@@ -248,7 +240,7 @@ export class ItemsService {
       }
 
       // Determine slot
-      const slotMap = {
+      const slotMap: Record<string, string> = {
         WEAPON: 'weapon_id',
         ARMOR: 'armor_id',
         CHARM: 'charm_id',
@@ -285,7 +277,8 @@ export class ItemsService {
         where: { id: creatureId, user_id: userId },
       });
       if (updatedCreature) {
-        const newStats = await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
+        const newStats =
+          await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
         updatedCreature.power_score = this.creatureProgressionService.calculatePowerScore(newStats);
         await this.creatureRepo.save(updatedCreature);
       }
@@ -311,7 +304,7 @@ export class ItemsService {
       }
 
       // Parse gear slots
-      let gearSlots = {};
+      let gearSlots: Record<string, number> = {};
       try {
         gearSlots = creature.gear_slots ? JSON.parse(creature.gear_slots) : {};
       } catch (e) {
@@ -350,7 +343,8 @@ export class ItemsService {
         where: { id: creatureId, user_id: userId },
       });
       if (updatedCreature) {
-        const newStats = await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
+        const newStats =
+          await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
         updatedCreature.power_score = this.creatureProgressionService.calculatePowerScore(newStats);
         await this.creatureRepo.save(updatedCreature);
       }
@@ -393,7 +387,7 @@ export class ItemsService {
           equippedItems[slot] = {
             inventory_item_id: invItem.id,
             item: invItem.item,
-            enhance_level: invItem.enhance_lv,
+            enhance_level: invItem.enhance_level,
           };
         }
       }

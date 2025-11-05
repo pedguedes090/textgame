@@ -41,9 +41,9 @@ export class AuthController {
         gems: 200,
         stamina: 85,
         stamina_max: 100,
-        created_at: '2025-01-01T00:00:00.000Z'
-      }
-    }
+        created_at: '2025-01-01T00:00:00.000Z',
+      },
+    },
   })
   async getProfile(@Req() req: any) {
     return this.authService.getProfile(req.user.id);

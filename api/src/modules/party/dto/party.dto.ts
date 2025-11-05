@@ -15,7 +15,11 @@ export class UpdatePartyDto {
   @MaxLength(100)
   name?: string;
 
-  @ApiProperty({ example: [1, 2, 3, 4], required: false, description: 'Array of UserCreature IDs (max 4)' })
+  @ApiProperty({
+    example: [1, 2, 3, 4],
+    required: false,
+    description: 'Array of UserCreature IDs (max 4)',
+  })
   @IsArray()
   @IsOptional()
   creature_ids?: number[];

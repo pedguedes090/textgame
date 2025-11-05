@@ -7,10 +7,7 @@ import { PartyService } from './party.service';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Party, UserCreature]),
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Party, UserCreature]), CommonModule],
   controllers: [PartyController],
   providers: [PartyService],
   exports: [PartyService],

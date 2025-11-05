@@ -50,7 +50,7 @@ export class QuestsService {
     const userQuests = await queryBuilder.getMany();
 
     return {
-      quests: userQuests.map(uq => ({
+      quests: userQuests.map((uq) => ({
         ...uq,
         progress: `${uq.current_count}/${uq.quest.target_count}`,
         can_claim: uq.completed && !uq.claimed,
@@ -58,11 +58,7 @@ export class QuestsService {
     };
   }
 
-  async updateQuestProgress(
-    userId: number,
-    objectiveType: string,
-    count: number = 1,
-  ) {
+  async updateQuestProgress(userId: number, objectiveType: string, count: number = 1) {
     // Find active quests with matching objective
     const userQuests = await this.userQuestRepo
       .createQueryBuilder('uq')
@@ -75,7 +71,7 @@ export class QuestsService {
 
     for (const uq of userQuests) {
       uq.current_count = Math.min(uq.current_count + count, uq.quest.target_count);
-      
+
       if (uq.current_count >= uq.quest.target_count) {
         uq.completed = true;
       }
@@ -163,7 +159,7 @@ export class QuestsService {
 
     // Daily quests expire in 24 hours
     const dailyExpiry = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    
+
     // Weekly quests expire in 7 days
     const weeklyExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -247,7 +243,7 @@ export class QuestsService {
     });
 
     return {
-      quests: quests.filter(q => q.min_level <= user.level),
+      quests: quests.filter((q) => q.min_level <= user.level),
     };
   }
 }

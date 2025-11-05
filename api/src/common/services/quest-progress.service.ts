@@ -65,7 +65,6 @@ export class QuestProgressService {
         // Check completion
         if (userQuest.current_count >= targetCount) {
           userQuest.completed = true;
-          userQuest.completed_at = new Date();
         }
 
         await this.userQuestRepo.save(userQuest);
@@ -170,7 +169,7 @@ export class QuestProgressService {
 
       const availableQuests = await this.questRepo.find({
         where: {
-          is_active: true,
+          active: true,
           // Add more conditions based on user level, etc.
         },
       });

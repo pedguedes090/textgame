@@ -5,7 +5,6 @@ import { UserCreature } from 'src/entities/user-creature.entity';
 import { CreatureSpecies } from 'src/entities/creature-species.entity';
 import { User } from 'src/entities/user.entity';
 import { UserInventory } from 'src/entities/user-inventory.entity';
-import { gameConfig } from 'src/config/game.config';
 
 @Injectable()
 export class CreatureProgressionService {
@@ -34,15 +33,18 @@ export class CreatureProgressionService {
    */
   calculateStatGrowth(baseStat: number, iv: number, level: number): number {
     // Growth = baseStat * (1 + 0.05 * level) * (1 + iv/62)
-    const levelMultiplier = 1 + (0.05 * level);
-    const ivMultiplier = 1 + (iv / 62); // IV 0-31 gives 0-50% bonus
+    const levelMultiplier = 1 + 0.05 * level;
+    const ivMultiplier = 1 + iv / 62; // IV 0-31 gives 0-50% bonus
     return Math.floor(baseStat * levelMultiplier * ivMultiplier);
   }
 
   /**
    * Calculate total creature stats including level, IV, and equipment
    */
-  async calculateCreatureStats(creature: UserCreature, includeEquipment: boolean = true): Promise<any> {
+  async calculateCreatureStats(
+    creature: UserCreature,
+    includeEquipment: boolean = true,
+  ): Promise<any> {
     const species = await this.speciesRepo.findOne({
       where: { id: creature.species_id },
     });
@@ -55,7 +57,9 @@ export class CreatureProgressionService {
     const baseStats = JSON.parse(species.base_stats);
 
     // Parse IV rolls
-    const ivRolls = creature.iv_rolls ? JSON.parse(creature.iv_rolls) : { hp: 15, atk: 15, def: 15, spd: 15 };
+    const ivRolls = creature.iv_rolls
+      ? JSON.parse(creature.iv_rolls)
+      : { hp: 15, atk: 15, def: 15, spd: 15 };
 
     // Calculate stats with growth
     let hp = this.calculateStatGrowth(baseStats.hp || 100, ivRolls.hp, creature.level);
@@ -96,7 +100,7 @@ export class CreatureProgressionService {
 
     try {
       const gearSlots = creature.gear_slots ? JSON.parse(creature.gear_slots) : {};
-      const inventoryIds = Object.values(gearSlots).filter(id => id) as number[];
+      const inventoryIds = Object.values(gearSlots).filter((id) => id) as number[];
 
       if (inventoryIds.length === 0) {
         return bonus;
@@ -115,13 +119,13 @@ export class CreatureProgressionService {
 
         // Parse affixes (stats bonuses)
         const affixes = invItem.item.affixes ? JSON.parse(invItem.item.affixes) : [];
-        
+
         for (const affix of affixes) {
           const stat = affix.stat?.toLowerCase();
           let value = affix.value || 0;
 
           // Enhancement bonus: +10% per enhancement level
-          const enhanceMultiplier = 1 + (invItem.enhance_lv || 0) * 0.1;
+          const enhanceMultiplier = 1 + (invItem.enhance_level || 0) * 0.1;
           value = Math.floor(value * enhanceMultiplier);
 
           if (stat === 'hp') bonus.hp += value;
@@ -170,7 +174,7 @@ export class CreatureProgressionService {
     // Process level ups
     while (currentLevel < maxLevel) {
       const expRequired = this.calculateExpForLevel(currentLevel);
-      
+
       if (currentExp >= expRequired) {
         currentExp -= expRequired;
         currentLevel++;
@@ -201,22 +205,13 @@ export class CreatureProgressionService {
    * Calculate overall power score for comparison
    */
   calculatePowerScore(stats: any): number {
-    return Math.floor(
-      stats.hp * 0.5 +
-      stats.atk * 2 +
-      stats.def * 1.5 +
-      stats.spd * 1.0
-    );
+    return Math.floor(stats.hp * 0.5 + stats.atk * 2 + stats.def * 1.5 + stats.spd * 1.0);
   }
 
   /**
    * Award exp to party creatures after battle
    */
-  async awardExpToParty(
-    userId: number,
-    creatureIds: number[],
-    baseExp: number,
-  ): Promise<any[]> {
+  async awardExpToParty(userId: number, creatureIds: number[], baseExp: number): Promise<any[]> {
     const results = [];
 
     for (const creatureId of creatureIds) {
@@ -255,48 +250,15 @@ export class CreatureProgressionService {
     }
 
     // Check if species has evolution data
-    const evolutionData = creature.species.evolution_data 
-      ? JSON.parse(creature.species.evolution_data) 
-      : null;
-
-    if (!evolutionData || !evolutionData.evolves_to) {
-      return { canEvolve: false };
-    }
-
-    // Check level requirement
-    const requiredLevel = evolutionData.required_level || 30;
-    if (creature.level < requiredLevel) {
-      return {
-        canEvolve: false,
-        requirements: {
-          level: requiredLevel,
-          current_level: creature.level,
-        },
-      };
-    }
-
-    // Get next evolution species
-    const nextSpecies = await this.speciesRepo.findOne({
-      where: { id: evolutionData.evolves_to },
-    });
-
-    return {
-      canEvolve: true,
-      nextEvolution: nextSpecies || undefined,
-      requirements: {
-        level: requiredLevel,
-        item: evolutionData.required_item,
-      },
-    };
+    // TODO: Add evolution_data field to CreatureSpecies entity
+    // Evolution system is not yet implemented
+    return { canEvolve: false };
   }
 
   /**
    * Evolve creature to next form
    */
-  async evolveCreature(
-    userId: number,
-    creatureId: number,
-  ): Promise<UserCreature> {
+  async evolveCreature(userId: number, creatureId: number): Promise<UserCreature> {
     const creature = await this.creatureRepo.findOne({
       where: { id: creatureId, user_id: userId },
       relations: ['species'],
@@ -313,7 +275,7 @@ export class CreatureProgressionService {
 
     // Update to new species
     creature.species_id = evolutionCheck.nextEvolution.id;
-    
+
     // Keep current level and exp
     // Recalculate stats and power score
     const newStats = await this.calculateCreatureStats(creature);
@@ -345,10 +307,12 @@ export class CreatureProgressionService {
         current_stats: stats,
         exp_to_next_level: expToNext,
         exp_progress: `${creature.exp}/${expToNext}`,
-        evolution: evolution.canEvolve ? {
-          can_evolve: true,
-          next_species: evolution.nextEvolution?.name,
-        } : null,
+        evolution: evolution.canEvolve
+          ? {
+              can_evolve: true,
+              next_species: evolution.nextEvolution?.name,
+            }
+          : null,
       });
     }
 

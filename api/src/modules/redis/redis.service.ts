@@ -33,6 +33,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client;
   }
 
+  async ping(): Promise<string> {
+    return this.client.ping();
+  }
+
   // Rate limiting with Lua script
   async checkRateLimit(key: string, limit: number, ttl: number): Promise<boolean> {
     const script = `
@@ -53,11 +57,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Distributed lock (SET NX PX)
-  async acquireLock(
-    lockKey: string,
-    lockValue: string,
-    ttlMs: number,
-  ): Promise<boolean> {
+  async acquireLock(lockKey: string, lockValue: string, ttlMs: number): Promise<boolean> {
     const result = await this.client.set(lockKey, lockValue, 'PX', ttlMs, 'NX');
     return result === 'OK';
   }

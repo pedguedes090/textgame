@@ -8,7 +8,7 @@ import { ItemsModule } from '../items/items.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GachaPity]), 
+    TypeOrmModule.forFeature([GachaPity]),
     CommonModule,
     ItemsModule, // Import for ItemsService
   ],

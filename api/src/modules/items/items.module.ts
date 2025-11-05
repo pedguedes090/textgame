@@ -9,10 +9,7 @@ import { UserCreature } from 'src/entities/user-creature.entity';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserInventory, Item, User, UserCreature]),
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([UserInventory, Item, User, UserCreature]), CommonModule],
   controllers: [ItemsController],
   providers: [ItemsService],
   exports: [ItemsService],

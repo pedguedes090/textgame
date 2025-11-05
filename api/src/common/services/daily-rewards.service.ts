@@ -5,7 +5,7 @@ import { DailyLoginReward } from 'src/entities/daily-login-reward.entity';
 import { User } from 'src/entities/user.entity';
 import { UserInventory } from 'src/entities/user-inventory.entity';
 
-interface DailyReward {
+export interface DailyReward {
   day: number;
   gold: number;
   gems: number;
@@ -19,11 +19,29 @@ export class DailyRewardsService {
   private readonly rewardSchedule: DailyReward[] = [
     { day: 1, gold: 500, gems: 5, description: 'Welcome back!' },
     { day: 2, gold: 750, gems: 10, description: 'Day 2 bonus' },
-    { day: 3, gold: 1000, gems: 15, items: [{ item_id: 1, quantity: 3 }], description: 'Day 3 bonus + items' },
+    {
+      day: 3,
+      gold: 1000,
+      gems: 15,
+      items: [{ item_id: 1, quantity: 3 }],
+      description: 'Day 3 bonus + items',
+    },
     { day: 4, gold: 1500, gems: 20, description: 'Day 4 bonus' },
-    { day: 5, gold: 2000, gems: 25, items: [{ item_id: 2, quantity: 2 }], description: 'Day 5 bonus + items' },
+    {
+      day: 5,
+      gold: 2000,
+      gems: 25,
+      items: [{ item_id: 2, quantity: 2 }],
+      description: 'Day 5 bonus + items',
+    },
     { day: 6, gold: 2500, gems: 30, description: 'Day 6 bonus' },
-    { day: 7, gold: 5000, gems: 50, items: [{ item_id: 3, quantity: 1 }], description: 'Week complete! Big bonus!' },
+    {
+      day: 7,
+      gold: 5000,
+      gems: 50,
+      items: [{ item_id: 3, quantity: 1 }],
+      description: 'Week complete! Big bonus!',
+    },
   ];
 
   constructor(
@@ -65,7 +83,9 @@ export class DailyRewardsService {
     const lastLoginDate = new Date(lastReward.login_date);
     lastLoginDate.setHours(0, 0, 0, 0);
 
-    const daysDiff = Math.floor((today.getTime() - lastLoginDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.floor(
+      (today.getTime() - lastLoginDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     // Already claimed today
     if (daysDiff === 0) {
@@ -174,7 +194,7 @@ export class DailyRewardsService {
     rewardSchedule: DailyReward[];
   }> {
     const check = await this.checkDailyReward(userId);
-    
+
     const totalLogins = await this.dailyRewardRepo.count({
       where: { user_id: userId },
     });
@@ -183,7 +203,7 @@ export class DailyRewardsService {
       currentStreak: check.streakDay,
       totalLogins,
       lastLoginDate: check.lastLoginDate,
-      nextReward: check.canClaim ? check.reward : this.rewardSchedule[(check.streakDay % 7)],
+      nextReward: check.canClaim ? check.reward : this.rewardSchedule[check.streakDay % 7],
       rewardSchedule: this.rewardSchedule,
     };
   }
@@ -208,7 +228,7 @@ export class DailyRewardsService {
         user_id: userId,
         item_id: itemId,
         quantity,
-        enhance_lv: 0,
+        enhance_level: 0,
         bound: false,
       });
       await this.inventoryRepo.save(newItem);

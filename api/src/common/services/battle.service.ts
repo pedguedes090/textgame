@@ -46,11 +46,13 @@ export class BattleService {
    * Calculate element advantage bonus
    */
   getElementBonus(attackerElement: string, defenderElement: string): number {
-    const advantage = gameConfig.elementAdvantage[attackerElement];
+    const advantage =
+      gameConfig.elementAdvantage[attackerElement as keyof typeof gameConfig.elementAdvantage];
     if (advantage === defenderElement) return gameConfig.elementBonus; // +10%
-    
+
     // Check reverse (defender có lợi thế)
-    const defenderAdvantage = gameConfig.elementAdvantage[defenderElement];
+    const defenderAdvantage =
+      gameConfig.elementAdvantage[defenderElement as keyof typeof gameConfig.elementAdvantage];
     if (defenderAdvantage === attackerElement) return -gameConfig.elementBonus; // -10%
 
     return 0; // Neutral
@@ -67,7 +69,7 @@ export class BattleService {
   ): { damage: number; isCrit: boolean; elementBonus: number } {
     const mitigation = this.calculateMitigation(defender.def);
     const elementBonus = this.getElementBonus(attacker.element, defender.element);
-    
+
     // Roll crit
     const isCrit = random() < attacker.crit_rate;
     const critMult = isCrit ? attacker.crit_dmg : 1.0;
@@ -95,7 +97,7 @@ export class BattleService {
     maxTurns: number = 50,
   ): BattleResult {
     const allCombatants = [...playerTeam, ...enemyTeam];
-    
+
     // Sort by SPD (desc), tie-break by id
     allCombatants.sort((a, b) => {
       if (b.spd !== a.spd) return b.spd - a.spd;

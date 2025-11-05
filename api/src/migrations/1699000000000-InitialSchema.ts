@@ -64,8 +64,12 @@ export class InitialSchema1699000000000 implements MigrationInterface {
         FOREIGN KEY ("species_id") REFERENCES "creature_species" ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_user_creatures_user_id" ON "user_creatures" ("user_id")`);
-    await queryRunner.query(`CREATE INDEX "IDX_user_creatures_species_id" ON "user_creatures" ("species_id")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_user_creatures_user_id" ON "user_creatures" ("user_id")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_user_creatures_species_id" ON "user_creatures" ("species_id")`,
+    );
 
     // Items table
     await queryRunner.query(`

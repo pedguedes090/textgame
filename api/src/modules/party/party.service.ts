@@ -42,7 +42,7 @@ export class PartyService {
     }
 
     // Fetch creature details
-    let creatures = [];
+    let creatures: any[] = [];
     if (party.creature_ids && party.creature_ids.length > 0) {
       creatures = await this.creatureRepo
         .createQueryBuilder('uc')
@@ -79,7 +79,7 @@ export class PartyService {
       // Verify all creatures belong to user
       if (dto.creature_ids.length > 0) {
         const creatures = await this.creatureRepo.count({
-          where: { 
+          where: {
             id: In(dto.creature_ids),
             user_id: userId,
           },
@@ -123,10 +123,7 @@ export class PartyService {
     }
 
     // Deactivate all other parties
-    await this.partyRepo.update(
-      { user_id: userId },
-      { is_active: false },
-    );
+    await this.partyRepo.update({ user_id: userId }, { is_active: false });
 
     // Activate this party
     party.is_active = true;
@@ -178,7 +175,7 @@ export class PartyService {
       throw new BadRequestException('Creature not in party');
     }
 
-    party.creature_ids = party.creature_ids.filter(id => id !== creatureId);
+    party.creature_ids = party.creature_ids.filter((id) => id !== creatureId);
     return this.partyRepo.save(party);
   }
 

@@ -17,9 +17,9 @@ export class SubmitPvpResultDto {
   @IsString()
   match_id: string;
 
-  @ApiProperty({ 
-    example: 'A', 
-    description: 'Result: A (player A wins), B (player B wins), or DRAW' 
+  @ApiProperty({
+    example: 'A',
+    description: 'Result: A (player A wins), B (player B wins), or DRAW',
   })
   @IsString()
   result: 'A' | 'B' | 'DRAW';

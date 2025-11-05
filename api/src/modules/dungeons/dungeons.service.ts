@@ -64,7 +64,7 @@ export class DungeonsService {
       if (!user) {
         throw new BadRequestException('User not found');
       }
-      
+
       // Deduct stamina using stamina service
       await this.staminaService.deductStamina(userId, dungeon.stamina_cost);
 
@@ -153,9 +153,7 @@ export class DungeonsService {
         : [];
 
       // Calculate gold reward (50% of recommended power)
-      const goldReward = battleResult.victory 
-        ? Math.floor(dungeon.recommended_power * 0.5)
-        : 0;
+      const goldReward = battleResult.victory ? Math.floor(dungeon.recommended_power * 0.5) : 0;
 
       // Transaction: save battle, deduct stamina, add drops, add exp, add gold
       await this.dataSource.transaction(async (manager) => {
@@ -203,14 +201,14 @@ export class DungeonsService {
       const expResults = await this.creatureProgressionService.awardExpToParty(
         userId,
         party.map((c: any) => c.id),
-        100 + dungeon.recommended_power
+        100 + dungeon.recommended_power,
       );
 
       // Track quest progress
       if (battleResult.victory) {
-        await this.questProgressService.trackDungeon(userId, dungeon.id);
+        await this.questProgressService.trackDungeon(userId, parseInt(dungeon.id, 10));
         await this.questProgressService.trackCollectGold(userId, goldReward);
-        
+
         // Track level ups for creatures
         for (const expResult of expResults) {
           if (expResult.levels_gained > 0) {
@@ -236,39 +234,47 @@ export class DungeonsService {
 
   async getDungeonDropRates(dungeonId: number) {
     const dungeon = await this.dungeonRepo.findOne({
-      where: { id: dungeonId },
+      where: { id: dungeonId.toString() },
     });
 
     if (!dungeon) {
       throw new NotFoundException('Dungeon not found');
     }
 
-    // Get all drop tables for this dungeon
-    const dropTables = await this.dropTableRepo
-      .createQueryBuilder('dt')
-      .leftJoinAndSelect('dt.item', 'item')
-      .where('dt.dungeon_id = :dungeonId', { dungeonId })
-      .orderBy('dt.drop_rate', 'DESC')
-      .getMany();
+    // Get drop table for this dungeon
+    const dropTable = await this.dropTableRepo.findOne({
+      where: { id: dungeon.drop_table_id },
+    });
+
+    let dropEntries: any[] = [];
+    if (dropTable && dropTable.entries) {
+      try {
+        dropEntries = JSON.parse(dropTable.entries);
+      } catch (e) {
+        console.error('Failed to parse drop table entries:', e);
+      }
+    }
 
     return {
       dungeon_id: dungeon.id,
       dungeon_name: dungeon.name,
-      level_requirement: dungeon.level_req,
+      level_requirement: dungeon.recommended_power,
       stamina_cost: dungeon.stamina_cost,
-      drop_tables: dropTables.map(dt => ({
-        item_id: dt.item_id,
-        item: dt.item,
-        drop_rate: dt.drop_rate,
-        min_quantity: dt.min_quantity,
-        max_quantity: dt.max_quantity,
-        drop_chance_percent: (dt.drop_rate * 100).toFixed(2) + '%',
-      })),
-      guaranteed_gold: {
-        min: dungeon.min_gold,
-        max: dungeon.max_gold,
-      },
-      total_drop_slots: dropTables.length,
+      drop_table: dropTable
+        ? {
+            name: dropTable.name,
+            entries: dropEntries.map((entry: any) => ({
+              item_id: entry.item_id,
+              weight: entry.weight,
+              min_quantity: entry.qty_min || 1,
+              max_quantity: entry.qty_max || 1,
+              drop_chance_percent:
+                dropTable.total_weight > 0
+                  ? ((entry.weight / dropTable.total_weight) * 100).toFixed(2) + '%'
+                  : '0%',
+            })),
+          }
+        : null,
     };
   }
 }

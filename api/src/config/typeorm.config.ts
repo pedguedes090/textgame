@@ -18,14 +18,17 @@ export const typeOrmConfig: DataSourceOptions = {
 const dataSource = new DataSource(typeOrmConfig);
 
 // Hook để set PRAGMA khi khởi tạo connection
-dataSource.initialize().then(() => {
-  if (dataSource.isInitialized) {
-    dataSource.query('PRAGMA foreign_keys = ON');
-    dataSource.query('PRAGMA journal_mode = WAL');
-    dataSource.query('PRAGMA busy_timeout = 5000');
-  }
-}).catch(() => {
-  // Sẽ được gọi lại từ app.module
-});
+dataSource
+  .initialize()
+  .then(() => {
+    if (dataSource.isInitialized) {
+      dataSource.query('PRAGMA foreign_keys = ON');
+      dataSource.query('PRAGMA journal_mode = WAL');
+      dataSource.query('PRAGMA busy_timeout = 5000');
+    }
+  })
+  .catch(() => {
+    // Sẽ được gọi lại từ app.module
+  });
 
 export default dataSource;

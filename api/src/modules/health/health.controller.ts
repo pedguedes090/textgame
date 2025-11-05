@@ -21,9 +21,9 @@ export class HealthController {
         status: 'healthy',
         database: 'up',
         redis: 'up',
-        timestamp: '2025-11-04T12:00:00.000Z'
-      }
-    }
+        timestamp: '2025-11-04T12:00:00.000Z',
+      },
+    },
   })
   async check() {
     let dbStatus = 'down';
@@ -61,7 +61,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Readiness probe for Kubernetes' })
   @ApiResponse({
     status: 200,
-    description: 'Service is ready to accept traffic'
+    description: 'Service is ready to accept traffic',
   })
   async ready() {
     // Same as health check, but Kubernetes-specific
@@ -76,7 +76,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Liveness probe for Kubernetes' })
   @ApiResponse({
     status: 200,
-    description: 'Service is alive'
+    description: 'Service is alive',
   })
   async live() {
     // Basic liveness check

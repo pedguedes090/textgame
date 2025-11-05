@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RateLimitGuard, RateLimit } from 'src/common/guards/rate-limit.guard';
@@ -33,9 +43,9 @@ export class CreaturesController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lấy danh sách creatures với stats chi tiết',
-    description: 'Bao gồm calculated stats, exp progress, evolution status'
+    description: 'Bao gồm calculated stats, exp progress, evolution status',
   })
   @ApiResponse({
     status: 200,
@@ -52,18 +62,18 @@ export class CreaturesController {
               hp: 450,
               atk: 120,
               def: 85,
-              spd: 95
+              spd: 95,
             },
             exp_to_next_level: 20000,
             exp_progress: '15000/20000',
             evolution: {
               can_evolve: true,
-              next_species: 'Advanced Form'
-            }
-          }
-        ]
-      }
-    }
+              next_species: 'Advanced Form',
+            },
+          },
+        ],
+      },
+    },
   })
   async getUserCreaturesDetailed(@Req() req: any) {
     const creatures = await this.progressionService.getUserCreaturesWithStats(req.user.id);
@@ -92,21 +102,18 @@ export class CreaturesController {
           spd: 95,
           crit_rate: 0.05,
           crit_dmg: 1.5,
-          element: 'FIRE'
-        }
-      }
-    }
+          element: 'FIRE',
+        },
+      },
+    },
   })
-  async getCreatureStats(
-    @Req() req: any,
-    @Param('id', ParseIntPipe) creatureId: number
-  ) {
+  async getCreatureStats(@Req() req: any, @Param('id', ParseIntPipe) creatureId: number) {
     // TODO: Add ownership check
     const stats = await this.progressionService.calculateCreatureStats({
       id: creatureId,
       user_id: req.user.id,
     } as any);
-    
+
     return {
       creature_id: creatureId,
       stats,
@@ -117,9 +124,9 @@ export class CreaturesController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 10 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Tiến hóa creature',
-    description: 'Evolve creature sang form tiếp theo (cần đủ level requirement)'
+    description: 'Evolve creature sang form tiếp theo (cần đủ level requirement)',
   })
   @ApiParam({ name: 'id', description: 'Creature ID' })
   @ApiResponse({
@@ -132,17 +139,14 @@ export class CreaturesController {
           id: 1,
           species_id: 4,
           level: 30,
-          new_species_name: 'Advanced Form'
-        }
-      }
-    }
+          new_species_name: 'Advanced Form',
+        },
+      },
+    },
   })
-  async evolveCreature(
-    @Req() req: any,
-    @Param('id', ParseIntPipe) creatureId: number
-  ) {
+  async evolveCreature(@Req() req: any, @Param('id', ParseIntPipe) creatureId: number) {
     const evolved = await this.progressionService.evolveCreature(req.user.id, creatureId);
-    
+
     return {
       message: 'Evolution successful',
       creature: evolved,
@@ -153,9 +157,9 @@ export class CreaturesController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 60 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Kiểm tra evolution status',
-    description: 'Check xem creature có thể evolve không và requirements'
+    description: 'Check xem creature có thể evolve không và requirements',
   })
   @ApiParam({ name: 'id', description: 'Creature ID' })
   @ApiResponse({
@@ -167,19 +171,16 @@ export class CreaturesController {
         nextEvolution: {
           id: 4,
           name: 'Advanced Form',
-          rarity: 'EPIC'
+          rarity: 'EPIC',
         },
         requirements: {
           level: 30,
-          item: null
-        }
-      }
-    }
+          item: null,
+        },
+      },
+    },
   })
-  async checkEvolution(
-    @Req() req: any,
-    @Param('id', ParseIntPipe) creatureId: number
-  ) {
+  async checkEvolution(@Req() req: any, @Param('id', ParseIntPipe) creatureId: number) {
     return this.progressionService.checkEvolution(creatureId);
   }
 }

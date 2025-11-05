@@ -11,9 +11,9 @@ export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Get('items')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Danh sách items trong shop',
-    description: 'Xem tất cả items có thể mua với giá, discount, stock'
+    description: 'Xem tất cả items có thể mua với giá, discount, stock',
   })
   @ApiQuery({ name: 'category', required: false, example: 'CONSUMABLE' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
@@ -37,18 +37,18 @@ export class ShopController {
             item: {
               name: 'Health Potion',
               type: 'CONSUMABLE',
-              rarity: 'COMMON'
-            }
-          }
+              rarity: 'COMMON',
+            },
+          },
         ],
         pagination: {
           page: 1,
           limit: 50,
           total: 120,
-          totalPages: 3
-        }
-      }
-    }
+          totalPages: 3,
+        },
+      },
+    },
   })
   async listItems(
     @Query('category') category?: string,
@@ -65,9 +65,9 @@ export class ShopController {
     description: 'Available categories',
     schema: {
       example: {
-        categories: ['CONSUMABLE', 'EQUIPMENT', 'MATERIAL', 'SPECIAL']
-      }
-    }
+        categories: ['CONSUMABLE', 'EQUIPMENT', 'MATERIAL', 'SPECIAL'],
+      },
+    },
   })
   async getCategories() {
     return this.shopService.getShopCategories();
@@ -77,9 +77,9 @@ export class ShopController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Mua item từ shop',
-    description: 'Mua item bằng gold/gems, tự động thêm vào inventory'
+    description: 'Mua item bằng gold/gems, tự động thêm vào inventory',
   })
   @ApiResponse({
     status: 200,
@@ -92,9 +92,9 @@ export class ShopController {
         total_cost_gold: 4500,
         total_cost_gems: 0,
         gold_remaining: 45500,
-        gems_remaining: 1000
-      }
-    }
+        gems_remaining: 1000,
+      },
+    },
   })
   async buyItem(@Req() req: any, @Body() dto: BuyItemDto) {
     return this.shopService.buyItem(req.user.id, dto.shop_item_id, dto.quantity || 1);
@@ -104,9 +104,9 @@ export class ShopController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Bán item từ inventory',
-    description: 'Bán item để nhận gold (50% base value + enhancement bonus)'
+    description: 'Bán item để nhận gold (50% base value + enhancement bonus)',
   })
   @ApiResponse({
     status: 200,
@@ -118,9 +118,9 @@ export class ShopController {
         quantity: 1,
         total_gold_earned: 250,
         gold_balance: 50250,
-        remaining_quantity: 0
-      }
-    }
+        remaining_quantity: 0,
+      },
+    },
   })
   async sellItem(@Req() req: any, @Body() dto: SellItemDto) {
     return this.shopService.sellItem(req.user.id, dto.inventory_item_id, dto.quantity || 1);

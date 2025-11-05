@@ -2,9 +2,9 @@ import { IsNumber, Min, IsString, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class EnhanceItemDto {
-  @ApiProperty({ 
-    example: 1, 
-    description: 'User inventory item ID' 
+  @ApiProperty({
+    example: 1,
+    description: 'User inventory item ID',
   })
   @IsNumber()
   @Min(1)
@@ -29,10 +29,10 @@ export class UnequipItemDto {
   @Min(1)
   creature_id: number;
 
-  @ApiProperty({ 
-    example: 'weapon_id', 
+  @ApiProperty({
+    example: 'weapon_id',
     description: 'Slot to unequip',
-    enum: ['weapon_id', 'armor_id', 'charm_id', 'ring_id']
+    enum: ['weapon_id', 'armor_id', 'charm_id', 'ring_id'],
   })
   @IsString()
   @IsIn(['weapon_id', 'armor_id', 'charm_id', 'ring_id'])
