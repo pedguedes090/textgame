@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Rarity Colors */
+.rarity-common {
+  color: #9ca3af;
+}
+.rarity-uncommon {
+  color: #4ade80;
+}
+.rarity-rare {
+  color: #3b82f6;
+}
+.rarity-epic {
+  color: #a855f7;
+}
+.rarity-legendary {
+  color: #eab308;
+}
+.rarity-mythic {
+  color: #ec4899;
+}
+.rarity-ancient {
+  color: #f97316;
+}
+
+/* Element Colors */
+.element-fire {
+  color: #ef4444;
+}
+.element-water {
+  color: #3b82f6;
+}
+.element-wood {
+  color: #22c55e;
+}
+.element-light {
+  color: #facc15;
+}
+.element-dark {
+  color: #8b5cf6;
+}
+.element-neutral {
+  color: #9ca3af;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #4f4f4f 4%, #5a5a5a 25%, #4f4f4f 36%);
+  background-size: 1000px 100%;
+}

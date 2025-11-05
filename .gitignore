@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+data/*.db
+data/*.db-shm
+data/*.db-wal
+.next/
+*.log
+coverage/
+.vscode/
+.idea/
