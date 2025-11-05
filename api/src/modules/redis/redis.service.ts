@@ -57,11 +57,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Distributed lock (SET NX PX)
-  async acquireLock(
-    lockKey: string,
-    lockValue: string,
-    ttlMs: number,
-  ): Promise<boolean> {
+  async acquireLock(lockKey: string, lockValue: string, ttlMs: number): Promise<boolean> {
     const result = await this.client.set(lockKey, lockValue, 'PX', ttlMs, 'NX');
     return result === 'OK';
   }

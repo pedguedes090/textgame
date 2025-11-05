@@ -19,10 +19,10 @@ export class GachaService {
 
   async openGacha(userId: number, bannerId: string, clientSeed?: string) {
     const GACHA_COST_GEMS = 100;
-    
+
     // Deduct gems first (throws if insufficient)
     await this.itemsService.deductGems(userId, GACHA_COST_GEMS);
-    
+
     // Get pity
     let pity = await this.pityRepo.findOne({
       where: { user_id: userId, banner_id: bannerId },
@@ -60,7 +60,8 @@ export class GachaService {
     } else {
       pity.rolls_since_legendary++;
       if (pity.rolls_since_legendary > gameConfig.pity.threshold) {
-        pity.pity_bonus = (pity.rolls_since_legendary - gameConfig.pity.threshold) * gameConfig.pity.increment;
+        pity.pity_bonus =
+          (pity.rolls_since_legendary - gameConfig.pity.threshold) * gameConfig.pity.increment;
       }
     }
     await this.pityRepo.save(pity);
@@ -76,7 +77,7 @@ export class GachaService {
       ANCIENT: 7,
     };
     const itemId = rarityToItemId[result.rarity as keyof typeof rarityToItemId] || 1;
-    
+
     // Save rolled item to inventory
     await this.itemsService.addItemToInventory(userId, itemId, 1, false);
 
@@ -86,7 +87,9 @@ export class GachaService {
 
     // Return với odds transparency
     const adjustedOdds = this.lootService.calculatePityOdds(
-      gameConfig.rarityOdds.LEGENDARY + gameConfig.rarityOdds.MYTHIC + gameConfig.rarityOdds.ANCIENT,
+      gameConfig.rarityOdds.LEGENDARY +
+        gameConfig.rarityOdds.MYTHIC +
+        gameConfig.rarityOdds.ANCIENT,
       pity.rolls_since_legendary,
     );
 

@@ -6,10 +6,7 @@ import { HistoryController } from './history.controller';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Battle, PvpMatch]),
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Battle, PvpMatch]), CommonModule],
   controllers: [HistoryController],
 })
 export class HistoryModule {}

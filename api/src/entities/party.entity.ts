@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { UserCreature } from './user-creature.entity';
 
@@ -30,6 +39,6 @@ export class Party {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => UserCreature, creature => creature.id)
+  @OneToMany(() => UserCreature, (creature) => creature.id)
   creatures: UserCreature[];
 }

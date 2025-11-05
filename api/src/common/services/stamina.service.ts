@@ -16,7 +16,7 @@ export class StaminaService {
    */
   async deductStamina(userId: number, amount: number): Promise<User> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -25,11 +25,11 @@ export class StaminaService {
     const now = Date.now();
     const timeSinceUpdate = now - user.stamina_updated_at;
     const regenIntervals = Math.floor(timeSinceUpdate / gameConfig.stamina.regenInterval);
-    
+
     if (regenIntervals > 0) {
       const newStamina = Math.min(
-        user.stamina + (regenIntervals * gameConfig.stamina.regenAmount),
-        gameConfig.stamina.max
+        user.stamina + regenIntervals * gameConfig.stamina.regenAmount,
+        gameConfig.stamina.max,
       );
       user.stamina = newStamina;
       user.stamina_updated_at = now;
@@ -37,25 +37,28 @@ export class StaminaService {
 
     // Check sufficient
     if (user.stamina < amount) {
-      const timeUntilNextRegen = gameConfig.stamina.regenInterval - (timeSinceUpdate % gameConfig.stamina.regenInterval);
+      const timeUntilNextRegen =
+        gameConfig.stamina.regenInterval - (timeSinceUpdate % gameConfig.stamina.regenInterval);
       throw new BadRequestException(
-        `Insufficient stamina. Need ${amount}, have ${user.stamina}. Next regen in ${Math.ceil(timeUntilNextRegen / 1000)}s`
+        `Insufficient stamina. Need ${amount}, have ${user.stamina}. Next regen in ${Math.ceil(timeUntilNextRegen / 1000)}s`,
       );
     }
 
     // Deduct
     user.stamina -= amount;
     await this.userRepo.save(user);
-    
+
     return user;
   }
 
   /**
    * Get current stamina với regen calculation
    */
-  async getCurrentStamina(userId: number): Promise<{ stamina: number; max: number; nextRegenIn: number }> {
+  async getCurrentStamina(
+    userId: number,
+  ): Promise<{ stamina: number; max: number; nextRegenIn: number }> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -63,16 +66,17 @@ export class StaminaService {
     const now = Date.now();
     const timeSinceUpdate = now - user.stamina_updated_at;
     const regenIntervals = Math.floor(timeSinceUpdate / gameConfig.stamina.regenInterval);
-    
+
     let currentStamina = user.stamina;
     if (regenIntervals > 0) {
       currentStamina = Math.min(
-        user.stamina + (regenIntervals * gameConfig.stamina.regenAmount),
-        gameConfig.stamina.max
+        user.stamina + regenIntervals * gameConfig.stamina.regenAmount,
+        gameConfig.stamina.max,
       );
     }
 
-    const timeUntilNextRegen = gameConfig.stamina.regenInterval - (timeSinceUpdate % gameConfig.stamina.regenInterval);
+    const timeUntilNextRegen =
+      gameConfig.stamina.regenInterval - (timeSinceUpdate % gameConfig.stamina.regenInterval);
 
     return {
       stamina: currentStamina,
@@ -86,7 +90,7 @@ export class StaminaService {
    */
   async regenerateAll(): Promise<number> {
     const now = Date.now();
-    
+
     // Find users cần regen (stamina < max và đã qua 1 regen interval)
     const users = await this.userRepo
       .createQueryBuilder('user')
@@ -101,11 +105,11 @@ export class StaminaService {
     for (const user of users) {
       const timeSinceUpdate = now - user.stamina_updated_at;
       const regenIntervals = Math.floor(timeSinceUpdate / gameConfig.stamina.regenInterval);
-      
+
       if (regenIntervals > 0) {
         user.stamina = Math.min(
-          user.stamina + (regenIntervals * gameConfig.stamina.regenAmount),
-          gameConfig.stamina.max
+          user.stamina + regenIntervals * gameConfig.stamina.regenAmount,
+          gameConfig.stamina.max,
         );
         user.stamina_updated_at = now;
         await this.userRepo.save(user);

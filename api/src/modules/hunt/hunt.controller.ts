@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Body, Req, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Body,
+  Req,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -28,9 +36,9 @@ export class HuntController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 40 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Bắt đầu săn thú',
-    description: 'Hunt creatures trong zone với random encounter (simplified dungeon)'
+    description: 'Hunt creatures trong zone với random encounter (simplified dungeon)',
   })
   @ApiResponse({
     status: 200,
@@ -45,38 +53,38 @@ export class HuntController {
           rarity: 'RARE',
           level: 1,
           iv_rolls: { hp: 20, atk: 15, def: 18, spd: 25 },
-          power_score: 450
+          power_score: 450,
         },
         seed_commit: 'hash_abc...',
-        server_seed_reveal: 'seed_xyz...'
-      }
-    }
+        server_seed_reveal: 'seed_xyz...',
+      },
+    },
   })
   async startHunt(@Req() req: any, @Body() dto: StartHuntDto) {
     const userId = req.user.id;
     const HUNT_STAMINA_COST = 10;
-    
+
     // Deduct stamina (throws if insufficient)
     await this.staminaService.deductStamina(userId, HUNT_STAMINA_COST);
-    
+
     const serverSeed = this.rngService.generateServerSeed();
     const seedCommit = this.rngService.generateCommit(serverSeed);
     const combined = this.rngService.combinedSeed(dto.client_seed || 'default', serverSeed);
-    
+
     // Random encounter
     const encounterRoll = this.rngService.rollFloat(combined, 0);
     const success = encounterRoll < 0.7; // 70% success rate
-    
+
     if (success) {
       // Roll species (1-10 from seed data)
       const speciesId = Math.floor(this.rngService.rollFloat(combined, 1) * 10) + 1;
-      
+
       // Get species from DB
       const species = await this.speciesRepo.findOne({ where: { id: speciesId } });
       if (!species) {
         throw new NotFoundException('Species not found');
       }
-      
+
       // Roll IVs (0-31)
       const ivRolls = {
         hp: Math.floor(this.rngService.rollFloat(combined, 2) * 32),
@@ -84,16 +92,16 @@ export class HuntController {
         def: Math.floor(this.rngService.rollFloat(combined, 4) * 32),
         spd: Math.floor(this.rngService.rollFloat(combined, 5) * 32),
       };
-      
+
       // Calculate power score
       const baseStats = JSON.parse(species.base_stats);
       const powerScore = Math.floor(
         (baseStats.hp + ivRolls.hp) * 0.5 +
-        (baseStats.atk + ivRolls.atk) * 1.2 +
-        (baseStats.def + ivRolls.def) * 0.8 +
-        (baseStats.spd + ivRolls.spd) * 1.0
+          (baseStats.atk + ivRolls.atk) * 1.2 +
+          (baseStats.def + ivRolls.def) * 0.8 +
+          (baseStats.spd + ivRolls.spd) * 1.0,
       );
-      
+
       // Save captured creature
       const creature = this.creatureRepo.create({
         user_id: userId,
@@ -105,11 +113,11 @@ export class HuntController {
         skills: '[]',
       });
       await this.creatureRepo.save(creature);
-      
+
       // Track quest progress
       await this.questProgressService.trackHunt(userId);
       await this.questProgressService.trackCollectCreature(userId, species.rarity);
-      
+
       return {
         success: true,
         creature_caught: {
@@ -125,7 +133,7 @@ export class HuntController {
         server_seed_reveal: serverSeed,
       };
     }
-    
+
     return {
       success: false,
       message: 'No creature encountered',

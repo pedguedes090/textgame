@@ -16,7 +16,14 @@ async function seed() {
   const species = [
     {
       name: 'Fire Dragon',
-      base_stats: JSON.stringify({ hp: 500, atk: 120, def: 80, spd: 60, crit_rate: 0.1, crit_dmg: 1.5 }),
+      base_stats: JSON.stringify({
+        hp: 500,
+        atk: 120,
+        def: 80,
+        spd: 60,
+        crit_rate: 0.1,
+        crit_dmg: 1.5,
+      }),
       rarity: 'LEGENDARY',
       element: 'FIRE',
       skills: JSON.stringify([
@@ -27,7 +34,14 @@ async function seed() {
     },
     {
       name: 'Water Serpent',
-      base_stats: JSON.stringify({ hp: 450, atk: 100, def: 90, spd: 70, crit_rate: 0.08, crit_dmg: 1.4 }),
+      base_stats: JSON.stringify({
+        hp: 450,
+        atk: 100,
+        def: 90,
+        spd: 70,
+        crit_rate: 0.08,
+        crit_dmg: 1.4,
+      }),
       rarity: 'EPIC',
       element: 'WATER',
       skills: JSON.stringify([{ name: 'Tidal Wave', dmg_mult: 1.8 }]),
@@ -35,7 +49,14 @@ async function seed() {
     },
     {
       name: 'Forest Sprite',
-      base_stats: JSON.stringify({ hp: 300, atk: 80, def: 60, spd: 90, crit_rate: 0.15, crit_dmg: 1.6 }),
+      base_stats: JSON.stringify({
+        hp: 300,
+        atk: 80,
+        def: 60,
+        spd: 90,
+        crit_rate: 0.15,
+        crit_dmg: 1.6,
+      }),
       rarity: 'RARE',
       element: 'WOOD',
       skills: JSON.stringify([{ name: 'Nature Bolt', dmg_mult: 1.5 }]),
@@ -43,7 +64,14 @@ async function seed() {
     },
     {
       name: 'Shadow Wolf',
-      base_stats: JSON.stringify({ hp: 400, atk: 110, def: 70, spd: 80, crit_rate: 0.12, crit_dmg: 1.55 }),
+      base_stats: JSON.stringify({
+        hp: 400,
+        atk: 110,
+        def: 70,
+        spd: 80,
+        crit_rate: 0.12,
+        crit_dmg: 1.55,
+      }),
       rarity: 'EPIC',
       element: 'DARK',
       skills: JSON.stringify([{ name: 'Shadow Bite', dmg_mult: 1.7 }]),
@@ -51,7 +79,14 @@ async function seed() {
     },
     {
       name: 'Light Phoenix',
-      base_stats: JSON.stringify({ hp: 550, atk: 130, def: 75, spd: 65, crit_rate: 0.11, crit_dmg: 1.6 }),
+      base_stats: JSON.stringify({
+        hp: 550,
+        atk: 130,
+        def: 75,
+        spd: 65,
+        crit_rate: 0.11,
+        crit_dmg: 1.6,
+      }),
       rarity: 'MYTHIC',
       element: 'LIGHT',
       skills: JSON.stringify([
@@ -142,8 +177,8 @@ async function seed() {
         { item_id: 1, weight: 50, qty_min: 1, qty_max: 1 }, // Iron Sword
         { item_id: 2, weight: 30, qty_min: 1, qty_max: 1 }, // Steel Armor
         { item_id: 3, weight: 15, qty_min: 1, qty_max: 1 }, // Ruby Ring
-        { item_id: 4, weight: 4, qty_min: 1, qty_max: 1 },  // Dragon Scale
-        { item_id: 5, weight: 1, qty_min: 1, qty_max: 1 },  // Phoenix Feather
+        { item_id: 4, weight: 4, qty_min: 1, qty_max: 1 }, // Dragon Scale
+        { item_id: 5, weight: 1, qty_min: 1, qty_max: 1 }, // Phoenix Feather
       ]),
     },
     {

@@ -9,11 +9,7 @@ import { ItemsModule } from '../items/items.module';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Quest, UserQuest, User]),
-    ItemsModule,
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Quest, UserQuest, User]), ItemsModule, CommonModule],
   controllers: [QuestsController],
   providers: [QuestsService],
   exports: [QuestsService],

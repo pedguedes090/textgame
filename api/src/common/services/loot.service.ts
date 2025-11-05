@@ -80,9 +80,7 @@ export class LootService {
     for (let i = 0; i < count; i++) {
       const idx = this.drawFromAlias(aliasTable, random);
       const entry = entries[idx];
-      const qty =
-        entry.qty_min +
-        Math.floor(random() * (entry.qty_max - entry.qty_min + 1));
+      const qty = entry.qty_min + Math.floor(random() * (entry.qty_max - entry.qty_min + 1));
       results.push({ item_id: entry.item_id, quantity: qty });
     }
 
@@ -102,13 +100,9 @@ export class LootService {
   /**
    * Roll gacha với pity
    */
-  rollGacha(
-    random: () => number,
-    pityCounter: number,
-  ): { rarity: string; hitPity: boolean } {
+  rollGacha(random: () => number, pityCounter: number): { rarity: string; hitPity: boolean } {
     const odds = gameConfig.rarityOdds;
-    const legendaryBase =
-      odds.LEGENDARY + odds.MYTHIC + odds.ANCIENT;
+    const legendaryBase = odds.LEGENDARY + odds.MYTHIC + odds.ANCIENT;
     const adjustedLegendaryRate = this.calculatePityOdds(legendaryBase, pityCounter);
 
     const roll = random() * 100;
@@ -125,7 +119,7 @@ export class LootService {
     for (const [threshold, rarity] of ranges) {
       if (roll < threshold) {
         const hitPity = rarity === 'LEGENDARY+' && pityCounter >= gameConfig.pity.threshold;
-        
+
         // Phân bổ chi tiết trong Legendary+
         if (rarity === 'LEGENDARY+') {
           const subRoll = random() * (odds.LEGENDARY + odds.MYTHIC + odds.ANCIENT);

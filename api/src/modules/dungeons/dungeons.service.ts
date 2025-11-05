@@ -64,7 +64,7 @@ export class DungeonsService {
       if (!user) {
         throw new BadRequestException('User not found');
       }
-      
+
       // Deduct stamina using stamina service
       await this.staminaService.deductStamina(userId, dungeon.stamina_cost);
 
@@ -153,9 +153,7 @@ export class DungeonsService {
         : [];
 
       // Calculate gold reward (50% of recommended power)
-      const goldReward = battleResult.victory 
-        ? Math.floor(dungeon.recommended_power * 0.5)
-        : 0;
+      const goldReward = battleResult.victory ? Math.floor(dungeon.recommended_power * 0.5) : 0;
 
       // Transaction: save battle, deduct stamina, add drops, add exp, add gold
       await this.dataSource.transaction(async (manager) => {
@@ -203,14 +201,14 @@ export class DungeonsService {
       const expResults = await this.creatureProgressionService.awardExpToParty(
         userId,
         party.map((c: any) => c.id),
-        100 + dungeon.recommended_power
+        100 + dungeon.recommended_power,
       );
 
       // Track quest progress
       if (battleResult.victory) {
         await this.questProgressService.trackDungeon(userId, parseInt(dungeon.id, 10));
         await this.questProgressService.trackCollectGold(userId, goldReward);
-        
+
         // Track level ups for creatures
         for (const expResult of expResults) {
           if (expResult.levels_gained > 0) {
@@ -262,18 +260,21 @@ export class DungeonsService {
       dungeon_name: dungeon.name,
       level_requirement: dungeon.recommended_power,
       stamina_cost: dungeon.stamina_cost,
-      drop_table: dropTable ? {
-        name: dropTable.name,
-        entries: dropEntries.map((entry: any) => ({
-          item_id: entry.item_id,
-          weight: entry.weight,
-          min_quantity: entry.qty_min || 1,
-          max_quantity: entry.qty_max || 1,
-          drop_chance_percent: dropTable.total_weight > 0 
-            ? ((entry.weight / dropTable.total_weight) * 100).toFixed(2) + '%' 
-            : '0%',
-        })),
-      } : null,
+      drop_table: dropTable
+        ? {
+            name: dropTable.name,
+            entries: dropEntries.map((entry: any) => ({
+              item_id: entry.item_id,
+              weight: entry.weight,
+              min_quantity: entry.qty_min || 1,
+              max_quantity: entry.qty_max || 1,
+              drop_chance_percent:
+                dropTable.total_weight > 0
+                  ? ((entry.weight / dropTable.total_weight) * 100).toFixed(2) + '%'
+                  : '0%',
+            })),
+          }
+        : null,
     };
   }
 }

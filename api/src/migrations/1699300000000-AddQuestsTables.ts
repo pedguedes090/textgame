@@ -160,7 +160,7 @@ export class AddQuestsTables1699300000000 implements MigrationInterface {
         await queryRunner.dropForeignKey('user_quests', fk);
       }
     }
-    
+
     await queryRunner.dropTable('user_quests');
     await queryRunner.dropTable('quests');
   }

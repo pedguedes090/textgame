@@ -2,9 +2,9 @@ import { IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class StartHuntDto {
-  @ApiProperty({ 
-    example: 'forest', 
-    description: 'Zone ID to hunt in' 
+  @ApiProperty({
+    example: 'forest',
+    description: 'Zone ID to hunt in',
   })
   @IsString()
   zone_id: string;

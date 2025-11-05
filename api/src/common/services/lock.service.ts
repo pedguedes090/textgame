@@ -9,10 +9,7 @@ export class LockService {
   /**
    * Acquire distributed lock với auto-expiry
    */
-  async acquire(
-    resource: string,
-    ttlMs: number = 5000,
-  ): Promise<string | null> {
+  async acquire(resource: string, ttlMs: number = 5000): Promise<string | null> {
     const lockKey = `lock:${resource}`;
     const lockValue = uuidv4();
     const acquired = await this.redisService.acquireLock(lockKey, lockValue, ttlMs);
@@ -30,11 +27,7 @@ export class LockService {
   /**
    * Execute with lock (auto acquire & release)
    */
-  async withLock<T>(
-    resource: string,
-    ttlMs: number,
-    fn: () => Promise<T>,
-  ): Promise<T> {
+  async withLock<T>(resource: string, ttlMs: number, fn: () => Promise<T>): Promise<T> {
     const lockValue = await this.acquire(resource, ttlMs);
     if (!lockValue) {
       throw new Error(`Failed to acquire lock: ${resource}`);

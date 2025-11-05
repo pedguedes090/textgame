@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -97,7 +102,17 @@ export class AuthService {
   async getProfile(userId: number) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'username', 'email_hash', 'level', 'gold', 'gems', 'stamina', 'stamina_updated_at', 'created_at'],
+      select: [
+        'id',
+        'username',
+        'email_hash',
+        'level',
+        'gold',
+        'gems',
+        'stamina',
+        'stamina_updated_at',
+        'created_at',
+      ],
     });
 
     if (!user) {

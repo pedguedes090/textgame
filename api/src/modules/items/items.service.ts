@@ -29,7 +29,7 @@ export class ItemsService {
 
   async enhanceItem(userId: number, inventoryItemId: number) {
     const lockKey = `enhance:${userId}:${inventoryItemId}`;
-    
+
     return this.lockService.withLock(lockKey, 5000, async () => {
       return this.dataSource.transaction(async (manager) => {
         // Get user
@@ -57,14 +57,12 @@ export class ItemsService {
 
         // Calculate cost
         const cost = Math.floor(
-          gameConfig.enhance.baseCost * Math.pow(gameConfig.enhance.costMultiplier, currentLevel)
+          gameConfig.enhance.baseCost * Math.pow(gameConfig.enhance.costMultiplier, currentLevel),
         );
 
         // Check gold
         if (user.gold < cost) {
-          throw new BadRequestException(
-            `Insufficient gold. Need ${cost}, have ${user.gold}`
-          );
+          throw new BadRequestException(`Insufficient gold. Need ${cost}, have ${user.gold}`);
         }
 
         // Deduct gold
@@ -142,11 +140,7 @@ export class ItemsService {
   /**
    * Add gold/gems to user
    */
-  async addCurrency(
-    userId: number,
-    gold: number = 0,
-    gems: number = 0,
-  ): Promise<User> {
+  async addCurrency(userId: number, gold: number = 0, gems: number = 0): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.findOne(User, { where: { id: userId } });
       if (!user) {
@@ -171,9 +165,7 @@ export class ItemsService {
       }
 
       if (user.gems < amount) {
-        throw new BadRequestException(
-          `Insufficient gems. Need ${amount}, have ${user.gems}`
-        );
+        throw new BadRequestException(`Insufficient gems. Need ${amount}, have ${user.gems}`);
       }
 
       user.gems -= amount;
@@ -285,7 +277,8 @@ export class ItemsService {
         where: { id: creatureId, user_id: userId },
       });
       if (updatedCreature) {
-        const newStats = await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
+        const newStats =
+          await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
         updatedCreature.power_score = this.creatureProgressionService.calculatePowerScore(newStats);
         await this.creatureRepo.save(updatedCreature);
       }
@@ -350,7 +343,8 @@ export class ItemsService {
         where: { id: creatureId, user_id: userId },
       });
       if (updatedCreature) {
-        const newStats = await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
+        const newStats =
+          await this.creatureProgressionService.calculateCreatureStats(updatedCreature);
         updatedCreature.power_score = this.creatureProgressionService.calculatePowerScore(newStats);
         await this.creatureRepo.save(updatedCreature);
       }

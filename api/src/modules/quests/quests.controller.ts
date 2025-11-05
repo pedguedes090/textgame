@@ -14,9 +14,9 @@ export class QuestsController {
 
   @Get()
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lấy danh sách quests của user',
-    description: 'Xem daily/weekly/story quests với progress tracking'
+    description: 'Xem daily/weekly/story quests với progress tracking',
   })
   @ApiQuery({ name: 'type', required: false, example: 'DAILY' })
   @ApiResponse({
@@ -33,18 +33,18 @@ export class QuestsController {
               type: 'DAILY',
               objective_type: 'HUNT',
               target_count: 5,
-              rewards: '{"gold":500,"gems":10}'
+              rewards: '{"gold":500,"gems":10}',
             },
             current_count: 3,
             completed: false,
             claimed: false,
             progress: '3/5',
             can_claim: false,
-            expires_at: '2025-11-05T12:00:00.000Z'
-          }
-        ]
-      }
-    }
+            expires_at: '2025-11-05T12:00:00.000Z',
+          },
+        ],
+      },
+    },
   })
   async getUserQuests(@Req() req: any, @Query('type') type?: string) {
     return this.questsService.getUserQuests(req.user.id, type);
@@ -52,9 +52,9 @@ export class QuestsController {
 
   @Get('available')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lấy danh sách quests có thể nhận',
-    description: 'Tất cả quests active và đủ level requirement'
+    description: 'Tất cả quests active và đủ level requirement',
   })
   @ApiResponse({ status: 200, description: 'Available quests' })
   async getAvailableQuests(@Req() req: any) {
@@ -63,9 +63,9 @@ export class QuestsController {
 
   @Post('claim')
   @RateLimit({ ttl: 60, limit: 30 })
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Claim quest reward',
-    description: 'Nhận reward khi hoàn thành quest (gold, gems, items)'
+    description: 'Nhận reward khi hoàn thành quest (gold, gems, items)',
   })
   @ApiResponse({
     status: 200,
@@ -77,12 +77,12 @@ export class QuestsController {
         rewards: {
           gold: 500,
           gems: 10,
-          items: []
+          items: [],
         },
         gold_balance: 50500,
-        gems_balance: 1010
-      }
-    }
+        gems_balance: 1010,
+      },
+    },
   })
   async claimReward(@Req() req: any, @Body() dto: ClaimQuestDto) {
     return this.questsService.claimQuestReward(req.user.id, dto.user_quest_id);

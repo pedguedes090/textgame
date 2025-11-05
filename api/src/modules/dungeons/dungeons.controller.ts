@@ -18,9 +18,9 @@ export class DungeonsController {
   }
 
   @Get(':id/drops')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem drop rates của dungeon',
-    description: 'Transparent odds - xem % drop của tất cả items trong dungeon'
+    description: 'Transparent odds - xem % drop của tất cả items trong dungeon',
   })
   @ApiParam({ name: 'id', description: 'Dungeon ID' })
   @ApiResponse({
@@ -35,18 +35,18 @@ export class DungeonsController {
             item: { name: 'Iron Sword', rarity: 'RARE' },
             drop_rate: 0.15,
             min_quantity: 1,
-            max_quantity: 1
+            max_quantity: 1,
           },
           {
             item: { name: 'Health Potion', rarity: 'COMMON' },
-            drop_rate: 0.50,
+            drop_rate: 0.5,
             min_quantity: 1,
-            max_quantity: 3
-          }
+            max_quantity: 3,
+          },
         ],
-        guaranteed_gold: { min: 500, max: 1000 }
-      }
-    }
+        guaranteed_gold: { min: 500, max: 1000 },
+      },
+    },
   })
   async getDungeonDrops(@Param('id', ParseIntPipe) dungeonId: number) {
     return this.dungeonsService.getDungeonDropRates(dungeonId);

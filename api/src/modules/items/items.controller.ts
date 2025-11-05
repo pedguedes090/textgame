@@ -1,4 +1,15 @@
-import { Controller, Post, Get, UseGuards, Body, Req, Query, BadRequestException, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Body,
+  Req,
+  Query,
+  BadRequestException,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RateLimitGuard, RateLimit } from 'src/common/guards/rate-limit.guard';
@@ -14,9 +25,9 @@ export class ItemsController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Cường hoá vật phẩm +0 -> +15',
-    description: 'Enhancement với success rate curve, cost scaling (base * 1.5^level)'
+    description: 'Enhancement với success rate curve, cost scaling (base * 1.5^level)',
   })
   @ApiResponse({
     status: 200,
@@ -27,9 +38,9 @@ export class ItemsController {
         new_level: 6,
         cost: 759,
         success_rate: 0.9,
-        gold_remaining: 1500
-      }
-    }
+        gold_remaining: 1500,
+      },
+    },
   })
   async enhanceItem(@Req() req: any, @Body() dto: EnhanceItemDto) {
     return this.itemsService.enhanceItem(req.user.id, dto.item_id);
@@ -38,9 +49,9 @@ export class ItemsController {
   @Get('inventory')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Lấy danh sách inventory',
-    description: 'Xem tất cả items trong túi với pagination'
+    description: 'Xem tất cả items trong túi với pagination',
   })
   @ApiResponse({
     status: 200,
@@ -57,18 +68,18 @@ export class ItemsController {
             item: {
               name: 'Iron Sword',
               rarity: 'RARE',
-              type: 'WEAPON'
-            }
-          }
+              type: 'WEAPON',
+            },
+          },
         ],
         pagination: {
           page: 1,
           pageSize: 50,
           total: 150,
-          totalPages: 3
-        }
-      }
-    }
+          totalPages: 3,
+        },
+      },
+    },
   })
   async getInventory(@Req() req: any, @Query('page') page: number = 1) {
     return this.itemsService.getInventory(req.user.id, page);
@@ -78,9 +89,9 @@ export class ItemsController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Trang bị item cho creature',
-    description: 'Equip weapon/armor/charm/ring vào creature'
+    description: 'Equip weapon/armor/charm/ring vào creature',
   })
   @ApiResponse({ status: 200, description: 'Item equipped successfully' })
   async equipItem(@Req() req: any, @Body() dto: EquipItemDto) {
@@ -91,9 +102,9 @@ export class ItemsController {
   @UseGuards(JwtAuthGuard, RateLimitGuard)
   @RateLimit({ ttl: 60, limit: 30 })
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Gỡ item khỏi creature',
-    description: 'Unequip item từ slot cụ thể'
+    description: 'Unequip item từ slot cụ thể',
   })
   @ApiResponse({ status: 200, description: 'Item unequipped successfully' })
   async unequipItem(@Req() req: any, @Body() dto: UnequipItemDto) {
@@ -103,9 +114,9 @@ export class ItemsController {
   @Get('equipped/:creatureId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Xem items đang trang bị trên creature',
-    description: 'Lấy tất cả equipped items của 1 creature'
+    description: 'Lấy tất cả equipped items của 1 creature',
   })
   @ApiParam({ name: 'creatureId', description: 'Creature ID' })
   @ApiResponse({ status: 200, description: 'Equipped items details' })

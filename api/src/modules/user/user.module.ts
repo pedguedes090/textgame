@@ -5,10 +5,7 @@ import { UserController } from './user.controller';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    CommonModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User]), CommonModule],
   controllers: [UserController],
 })
 export class UserModule {}
